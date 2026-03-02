@@ -79,8 +79,8 @@ Uses Notification::route() (No authentication required)
 
 📦 Installation
 1️⃣ Clone Repository
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/Shahria-Faysal/Laravel-Multi-Form-Notes-Management-System.git
+cd Laravel-Multi-Form-Notes-Management-System
 2️⃣ Install Dependencies
 composer install
 npm install
