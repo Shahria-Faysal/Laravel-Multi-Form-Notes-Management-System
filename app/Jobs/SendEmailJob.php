@@ -33,7 +33,7 @@ class SendEmailJob implements ShouldQueue
     {
         // Mail::to('fardin360360@gmail.com')
         //     ->send(new NoteAdded($this->note));
-        foreach ($this->request as $noteData) {
+        foreach ($this->request['forms'] as $noteData) {
 
             $note = Note::create([
                 'title' => $noteData['title'],

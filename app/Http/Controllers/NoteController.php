@@ -58,6 +58,7 @@ class NoteController extends Controller
         //     SendEmailJob::dispatch($note);
         //     // $note->notify(new NewNote($note));
         // }
+        // return response()->json(request()->all());
         SendEmailJob::dispatch($request->all());
 
         return response()->json(['success' => true]);
