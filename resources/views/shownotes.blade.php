@@ -20,7 +20,7 @@
       <button type="button" class="btn-close position-absolute top-0 end-0 m-3" onclick="closeForm(this)">
       </button>
 
-      <form>
+      <form id="formId">
         <div class="mb-3">
           <label class="form-label">Title</label>
           <input type="text" class="form-control" name="title">
@@ -127,7 +127,11 @@
         body: JSON.stringify({ forms: allData })
       })
         .then(res => res.json())
-        .then(data => console.log('Success:', data))
+        .then(data => {
+          alert('New notes added successfully');
+
+          document.querySelector('#formId').reset();
+        })
         .catch(err => console.error('Error:', err));
     }
   </script>

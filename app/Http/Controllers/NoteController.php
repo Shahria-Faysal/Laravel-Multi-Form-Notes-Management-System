@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DataTables\NotesDataTable;
 use App\Jobs\SendEmailJob;
 use App\Models\Note;
+use App\Notifications\NewNote;
 use Illuminate\Http\Request;
 
 class NoteController extends Controller
@@ -48,14 +49,16 @@ class NoteController extends Controller
      */
     public function store(Request $request)
     {
-        foreach ($request->input('forms') as $noteData) {
+        // foreach ($request->input('forms') as $noteData) {
 
-            $note = Note::create([
-                'title' => $noteData['title'],
-                'note' => $noteData['note'],
-            ]);
-            SendEmailJob::dispatch($note);
-        }
+        //     $note = Note::create([
+        //         'title' => $noteData['title'],
+        //         'note' => $noteData['note'],
+        //     ]);
+        //     SendEmailJob::dispatch($note);
+        //     // $note->notify(new NewNote($note));
+        // }
+        SendEmailJob::dispatch($request->all());
 
         return response()->json(['success' => true]);
     }
