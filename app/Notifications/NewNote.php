@@ -14,9 +14,12 @@ class NewNote extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+
+    public $note;
+
+    public function __construct($note)
     {
-        //
+        $this->note = $note;
     }
 
     /**
@@ -35,8 +38,10 @@ class NewNote extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
+            ->subject('New Note Added')
+            ->line('A new note has been created.')
+            ->line('Title: ' . $this->note->title)
+            ->action('View Notes', url('/notes'))
             ->line('Thank you for using our application!');
     }
 

@@ -11,6 +11,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use App\Notifications\NewNote;
+use Illuminate\Support\Facades\Notification;
+
 
 class SendEmailJob implements ShouldQueue
 {
@@ -40,6 +43,8 @@ class SendEmailJob implements ShouldQueue
                 'note' => $noteData['note'],
             ]);
         }
+        Notification::route('mail', 'fardin360360@gmail.com')
+                    ->notify(new NewNote($note));
         // Log::info('Job request data:', $this->request);
     }
 }

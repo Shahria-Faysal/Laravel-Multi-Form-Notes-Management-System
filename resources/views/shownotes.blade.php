@@ -17,8 +17,8 @@
   </div>
   <div class="container mt-4" id="forms-container">
     <div class="form-card position-relative border rounded p-4 mb-3">
-      <button type="button" class="btn-close position-absolute top-0 end-0 m-3" onclick="closeForm(this)">
-      </button>
+      {{-- <button type="button" class="btn-close position-absolute top-0 end-0 m-3" onclick="closeForm(this)">
+      </button> --}}
 
       <form id="formId">
         <div class="mb-3">
