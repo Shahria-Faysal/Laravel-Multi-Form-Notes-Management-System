@@ -24,4 +24,6 @@ Route::delete('notes/delete/{note}', [NoteController::class, 'forceDelete'])->na
 
 Route::post('notes/restore/{note}', [NoteController::class, 'restore'])->name('notes.restore')->withTrashed();
 
+Route::post('notes/take-backup', [NoteController::class, 'backup'])->name('notes.backup');
+
 Route::resource('notes', NoteController::class);

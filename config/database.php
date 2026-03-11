@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
+use Pdo\Mysql;
 
 return [
 
@@ -59,8 +60,15 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+
+            'dump' => [
+                'dump_binary_path' => 'D:\\PROGRAMMING\\Databse\\Xampp\\mysql\\bin\\',
+                'host' => '127.0.0.1', 
+                'port' => 3306,
+                'username'=> env('DB_USERNAME', 'root'), 
+            ],
         ],
 
         'mariadb' => [

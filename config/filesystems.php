@@ -32,10 +32,15 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
+            'root' => storage_path('app'),
             'serve' => true,
             'throw' => false,
             'report' => false,
+        ],
+
+        'backup_drive' => [
+            'driver' => 'local',
+            'root' => 'D:\PROGRAMMING\Projects\laravel\bulk-form\DB_Backup',
         ],
 
         'public' => [

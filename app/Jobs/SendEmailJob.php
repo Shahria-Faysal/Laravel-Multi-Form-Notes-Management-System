@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Mail\NoteAdded;
 use App\Models\Note;
+use App\Notifications\PushNote;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -36,15 +37,21 @@ class SendEmailJob implements ShouldQueue
     {
         // Mail::to('fardin360360@gmail.com')
         //     ->send(new NoteAdded($this->note));
-        foreach ($this->request['forms'] as $noteData) {
+        if (empty($this->request['forms'])) {
+            return; // nothing to process
+        }
 
+        foreach ($this->request['forms'] as $noteData) {
             $note = Note::create([
                 'title' => $noteData['title'],
-                'note' => $noteData['note'],
+                'note'  => $noteData['note'],
             ]);
+
+            // ✅ Notify per note, inside the loop
+            Notification::route('mail', 'fardin360360@gmail.com')
+                        ->notify(new NewNote($note));
+            
+            Notification::route('broadcast', 'pusher')->notify(new PushNote($note));
         }
-        Notification::route('mail', 'fardin360360@gmail.com')
-                    ->notify(new NewNote($note));
-        // Log::info('Job request data:', $this->request);
     }
 }
