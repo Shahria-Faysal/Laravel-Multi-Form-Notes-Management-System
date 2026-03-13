@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\NotesDataTable;
+use App\Events\FormSubmitted;
 use App\Jobs\SendEmailJob;
 use App\Models\Note;
 use App\Notifications\NewNote;
@@ -59,7 +60,8 @@ class NoteController extends Controller
     public function store(Request $request)
     {
 
-        SendEmailJob::dispatch($request->all());
+        $user = auth()->user();
+        SendEmailJob::dispatch($request->all(), $user);
 
         // Schedule::job(new SendEmailJob($request->all()))->everyFiveMinutes();
 

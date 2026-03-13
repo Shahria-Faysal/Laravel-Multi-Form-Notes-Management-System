@@ -2,10 +2,11 @@
 
 namespace App\Notifications;
 
+use App\Models\Note;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class NewNote extends Notification
 {
@@ -29,7 +30,7 @@ class NewNote extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail','broadcast'];
     }
 
     /**
@@ -50,10 +51,11 @@ class NewNote extends Notification
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toBroadcast($notifiable): BroadcastMessage
     {
-        return [
-            //
-        ];
+        return new BroadcastMessage([
+            'message' => 'New note: ' . $this->note->title.' has been added',
+            'note_id' => $this->note->id,
+        ]);
     }
 }

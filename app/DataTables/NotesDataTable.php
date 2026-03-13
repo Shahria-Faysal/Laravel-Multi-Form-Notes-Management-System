@@ -22,7 +22,7 @@ class NotesDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
-         $dataTable = (new EloquentDataTable($query))
+        $dataTable = (new EloquentDataTable($query))
             ->editColumn('created_at', function ($notes) {
                 return Carbon::parse($notes->created_at)->format('d-m-Y');
             })
@@ -41,9 +41,9 @@ class NotesDataTable extends DataTable
                 </div>
             ';
             })
-             ->editColumn('deleted_at', function ($notes) {
-                return Carbon::parse($notes->deleted_at)->format('d-m-Y');
-            });
+                ->editColumn('deleted_at', function ($notes) {
+                    return Carbon::parse($notes->deleted_at)->format('d-m-Y');
+                });
         } else {
             $dataTable->addColumn('action', function ($notes) {
                 return '
@@ -66,6 +66,10 @@ class NotesDataTable extends DataTable
         $type = $this->tableId;
         $query = $model->newQuery();
 
+        if (!auth()->user()->is_admin) {
+            $query->where('user_id', auth()->id());
+        }
+
         if ($type === 'trash-table') {
             $query->onlyTrashed();
         }
@@ -82,19 +86,19 @@ class NotesDataTable extends DataTable
         $ajaxUrl = route('notes.table.data');
         // $ajaxUrl = '/table-data';
         return $this->builder()
-                    ->setTableId($tableId)
-                    ->columns($this->getColumns())
-                    ->ajax([
-                        'url'  => $ajaxUrl, 
-                        'type' => 'GET',
-                        'data' => "function(d) { 
+            ->setTableId($tableId)
+            ->columns($this->getColumns())
+            ->ajax([
+                'url' => $ajaxUrl,
+                'type' => 'GET',
+                'data' => "function(d) { 
                             d.tableId = '{$tableId}';
                         }",
-                    ])
-                    ->parameters([
-                        'order' => [[0, 'asc']],
-                        // 'dom' => '<"top mb-2"Bf>lrt<"bottom d-flex    justify-content-between mt-3"ip>',
-                        'initComplete' => 'function() {
+            ])
+            ->parameters([
+                'order' => [[0, 'asc']],
+                // 'dom' => '<"top mb-2"Bf>lrt<"bottom d-flex    justify-content-between mt-3"ip>',
+                'initComplete' => 'function() {
             
                             const table = this.api();
 
@@ -130,17 +134,17 @@ class NotesDataTable extends DataTable
                                                       
 
                         }'
-                    ])
-                    ->orderBy(1)
-                    ->selectStyleSingle()
-                    ->buttons([
-                        Button::make('excel'),
-                        Button::make('csv'),
-                        Button::make('pdf'),
-                        Button::make('print'),
-                        Button::make('reset'),
-                        Button::make('reload')
-                                ]);
+            ])
+            ->orderBy(1)
+            ->selectStyleSingle()
+            ->buttons([
+                Button::make('excel'),
+                Button::make('csv'),
+                Button::make('pdf'),
+                Button::make('print'),
+                Button::make('reset'),
+                Button::make('reload')
+            ]);
     }
 
     /**
@@ -148,7 +152,7 @@ class NotesDataTable extends DataTable
      */
     public function getColumns(): array
     {
-         $columns = [
+        $columns = [
             Column::make('id')->width(120),
             Column::make('title'),
             Column::make('note'),

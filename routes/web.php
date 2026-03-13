@@ -1,20 +1,20 @@
 <?php
 
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+// use Illuminate\Support\Facades\Auth;
 
-// Route::get('/', function () {
-//     return view('home');
-// });
+// Auth::routes();
 
-Auth::routes();
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/notes', [NoteController::class, 'index'])->name('notes.index');
 
-// Route::get('table-data', [NoteController::class, 'tableData'])->name('notes.table.data');
+Route::get('/notes/create', [NoteController::class, 'create'])->name('notes.create');
 
 Route::get('/notes/table-data', [NoteController::class, 'tableData'])->name('notes.table.data');
+
+Route::post('notes/store', [NoteController::class, 'store'])->name('notes.store');
 
 Route::put('notes/update/{note}',[NoteController::class, 'update'])->name('notes.update');
 
@@ -27,3 +27,23 @@ Route::post('notes/restore/{note}', [NoteController::class, 'restore'])->name('n
 Route::post('notes/take-backup', [NoteController::class, 'backup'])->name('notes.backup');
 
 Route::resource('notes', NoteController::class);
+
+
+
+Route::get('/',[UserController::class, 'dashboard'])->name('dashboard');
+
+Route::view('/login', 'login')->name('login'); // show login page
+Route::post('/login', [UserController::class, 'login'])->name('loginMatch');
+
+Route::view('/register', 'register')->name('register');
+Route::post('/register', [UserController::class, 'register'])->name('registerSave');
+
+Route::middleware('auth')->group(function () {
+
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
+    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+
+});
+
+Route::resource('users', UserController::class);

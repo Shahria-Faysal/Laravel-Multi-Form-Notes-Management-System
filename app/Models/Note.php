@@ -11,5 +11,5 @@ class Note extends Model
 {
     use HasFactory,SoftDeletes,Notifiable;
     protected $table = 'notes';
-    protected $fillable = ['title', 'note'];
+    protected $fillable = ['title', 'note','user_id'];
 }
