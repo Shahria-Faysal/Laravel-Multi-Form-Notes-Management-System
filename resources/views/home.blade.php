@@ -9,41 +9,45 @@
             Add New Notes
         </a>
         <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                Take Database Backup
-            </button>
+    <button class="btn btn-primary dropdown-toggle" type="button"
+        data-bs-toggle="dropdown" {{ $backupCooldown ? 'disabled' : '' }}>
+        {{ $backupCooldown ? "Backup on cooldown ({$remainingSeconds}s)..." : 'Take Database Backup' }}
+    </button>
 
-            <ul class="dropdown-menu">
+    <ul class="dropdown-menu">
 
-                <li>
-                    <form method="POST" action="{{ route('notes.backup') }}">
-                        @csrf
-                        <input type="hidden" name="interval" value="0">
-                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                            {{ $backupCooldown ? 'Backup on cooldown...' : 'Instant' }} </button>
-                    </form>
-                </li>
+        <li>
+            <form method="POST" action="{{ route('notes.backup') }}">
+                @csrf
+                <input type="hidden" name="interval" value="0">
+                <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                    {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Instant' }}
+                </button>
+            </form>
+        </li>
 
-                <li>
-                    <form method="POST" action="{{ route('notes.backup') }}">
-                        @csrf
-                        <input type="hidden" name="interval" value="1">
-                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                            {{ $backupCooldown ? 'Backup on cooldown...' : 'Every minute' }}</button>
-                    </form>
-                </li>
+        <li>
+            <form method="POST" action="{{ route('notes.backup') }}">
+                @csrf
+                <input type="hidden" name="interval" value="1">
+                <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                    {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every minute' }}
+                </button>
+            </form>
+        </li>
 
-                <li>
-                    <form method="POST" action="{{ route('notes.backup') }}">
-                        @csrf
-                        <input type="hidden" name="interval" value="5">
-                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                            {{ $backupCooldown ? 'Backup on cooldown...' : 'Every 5 minutes' }}</button>
-                    </form>
-                </li>
+        <li>
+            <form method="POST" action="{{ route('notes.backup') }}">
+                @csrf
+                <input type="hidden" name="interval" value="5">
+                <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                    {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every 5 minutes' }}
+                </button>
+            </form>
+        </li>
 
-            </ul>
-        </div>
+    </ul>
+</div>
     </div>
     <div class="container">
         <div class="row justify-content-center">

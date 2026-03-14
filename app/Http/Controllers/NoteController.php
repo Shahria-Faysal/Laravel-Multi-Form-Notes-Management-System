@@ -8,9 +8,11 @@ use App\Jobs\SendEmailJob;
 use App\Models\Note;
 use App\Notifications\NewNote;
 use ArrayAccess;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
 
@@ -19,6 +21,7 @@ class NoteController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index(NotesDataTable $notesDataTable)
     {
         $noteTrashDataTable = app(NotesDataTable::class);
@@ -26,13 +29,30 @@ class NoteController extends Controller
         $notesDataTable->with('tableId', 'notes-table');
         $noteTrashDataTable->with('tableId', 'trash-table');
 
-        $backupCooldown = Cache::has('backup_cooldown');
+        // ✅ Backup cooldown check
+        $backupCooldown = false;
+        $remainingSeconds = 0;
+
+        $lastBackup = DB::table('backup_logs')
+            ->where('status', 'success')
+            ->latest('created_at')
+            ->first();
+
+        if ($lastBackup && $lastBackup->interval > 0) {
+            $nextAllowed = Carbon::parse($lastBackup->created_at)
+                ->addMinutes($lastBackup->interval);
+
+            if (now()->lt($nextAllowed)) {
+                $backupCooldown = true;
+                $remainingSeconds = now()->diffInSeconds($nextAllowed);
+            }
+        }
 
         return $notesDataTable->render('home', [
             'notesDataTable' => $notesDataTable->html(),
             'TrashTable' => $noteTrashDataTable->html(),
-            'backupCooldown' => $backupCooldown,
-            // compact('backupCooldown') // this iswrong, passing as nested array
+            'backupCooldown' => $backupCooldown,    // ✅ passed to blade
+            'remainingSeconds' => $remainingSeconds,  // ✅ passed to blade
         ]);
     }
 
@@ -112,48 +132,86 @@ class NoteController extends Controller
 
     public function backup(Request $request)
     {
-
-        $cooldownKey = 'backup_cooldown';
-
-        // ✅ Check if cooldown is active
-        if (Cache::has($cooldownKey)) {
-            $remainingSeconds = Cache::get($cooldownKey) - now()->timestamp;
-            return back()->with('error', "Please wait {$remainingSeconds} seconds before taking another backup.");
-        }
-
         $interval = (int) $request->input('interval');
-        $cooldownMinutes = $interval;
 
-        // ✅ Set cooldown BEFORE running backup
-        Cache::put($cooldownKey, now()->addMinutes($cooldownMinutes)->timestamp, now()->addMinutes($cooldownMinutes));
+        // ✅ Check cooldown from last successful backup
+        $lastBackup = DB::table('backup_logs')
+            ->where('status', 'success')
+            ->latest('created_at')
+            ->first();
 
+        if ($lastBackup && $lastBackup->interval > 0) {
+            $nextAllowed = Carbon::parse($lastBackup->created_at)
+                ->addMinutes($lastBackup->interval);
 
-        $host = '127.0.0.1';
-        $port = '3306';
-        $database = env('DB_DATABASE');
-        $username = env('DB_USERNAME');
-        $mysqldump = 'D:\\PROGRAMMING\\Databse\\Xampp\\mysql\\bin\\mysqldump.exe';
-
-        // $backupDir = storage_path('app\\backups');
-        $backupDir = 'D:\\PROGRAMMING\\Projects\\laravel\\bulk-form\\DB_Backup';
-        if (!file_exists($backupDir)) {
-            mkdir($backupDir, 0755, true);
+            if (now()->lt($nextAllowed)) {
+                $remaining = now()->diffInSeconds($nextAllowed);
+                return back()->with('error', "Please wait {$remaining} seconds before taking another backup.");
+            }
         }
 
-        $backupPath = $backupDir . '\\' . $database . '_' . now()->format('Y-m-d_H-i-s') . '.sql';
-        $command = "\"{$mysqldump}\" -h {$host} -P {$port} -u {$username} {$database} > \"{$backupPath}\" 2>&1";
+        try {
+            $host = '127.0.0.1';
+            $port = '3306';
+            $database = env('DB_DATABASE');
+            $username = env('DB_USERNAME');
+            $mysqldump = 'D:\\PROGRAMMING\\Databse\\Xampp\\mysql\\bin\\mysqldump.exe';
+            $backupDir = storage_path('app\\backups');
 
-        shell_exec($command);
+            if (!file_exists($backupDir)) {
+                mkdir($backupDir, 0755, true);
+            }
 
-        if (file_exists($backupPath) && filesize($backupPath) > 0) {
-            return back()->with('success', 'Backup saved successfully: ' . basename($backupPath));
+            $backupPath = $backupDir . '\\' . $database . '_' . now()->format('Y-m-d_H-i-s') . '.sql';
+            $command = "\"{$mysqldump}\" -h {$host} -P {$port} -u {$username} {$database} > \"{$backupPath}\" 2>&1";
+
+            shell_exec($command);
+
+            if (file_exists($backupPath) && filesize($backupPath) > 0) {
+                DB::table('backup_logs')->insert([
+                    'filename' => basename($backupPath),
+                    'status' => 'success',
+                    'interval' => $interval,
+                    'created_at' => now(),
+                ]);
+                return back()->with('success', 'Backup saved: ' . basename($backupPath));
+            }
+
+            throw new \Exception('Backup file was not created');
+
+        } catch (\Exception $e) {
+            DB::table('backup_logs')->insert([
+                'filename' => 'failed_' . now()->format('Y-m-d_H-i-s'),
+                'status' => 'failed',
+                'interval' => $interval,
+                'created_at' => now(),
+            ]);
+            return back()->with('error', 'Backup failed: ' . $e->getMessage());
         }
 
-        return back()->with('error', 'Backup failed!');
+        // try {
+        //     Artisan::call('backup:run');
+        //     dd(Artisan::output());
 
-        // Artisan::call('backup:run');
-        // dd(Artisan::output());
+        //     DB::table('backup_logs')->insert([
+        //         'filename' => 'spatie_backup_' . now()->format('Y-m-d_H-i-s'),
+        //         'status' => 'success',
+        //         'interval' => $interval,
+        //         'created_at' => now(),
+        //     ]);
 
-        // return back()->with('success', 'Backup completed successfully!');
+        //     return back()->with('success', 'Backup completed successfully!');
+
+        // } catch (\Exception $e) {
+
+        //     DB::table('backup_logs')->insert([
+        //         'filename' => 'spatie_backup_' . now()->format('Y-m-d_H-i-s'),
+        //         'status' => 'failed',
+        //         'interval' => $interval,
+        //         'created_at' => now(),
+        //     ]);
+
+        //     return back()->with('error', 'Backup failed: ' . $e->getMessage());
+        // }
     }
 }
