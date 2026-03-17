@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BackupScheduleController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,8 @@ Route::post('notes/restore/{note}', [NoteController::class, 'restore'])->name('n
 
 Route::post('notes/take-backup', [NoteController::class, 'backup'])->name('notes.backup');
 
+// Route::view('/notes/backupmodes','backupModes')->name('BackupModes');
+
 Route::resource('notes', NoteController::class);
 
 
@@ -47,3 +50,19 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('users', UserController::class);
+
+
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/backup/schedule', [BackupScheduleController::class, 'index'])->name('backup.schedule.index');
+
+    Route::post('/backup/schedule', [BackupScheduleController::class, 'store'])->name('backup.schedule.store');
+
+    Route::delete('/backup/schedule/{id}', [BackupScheduleController::class, 'destroy'])->name('backup.schedule.destroy');
+
+    Route::patch('/backup/schedule/{id}/toggle', [BackupScheduleController::class, 'toggle']);
+
+    Route::post('/backup/instant', [BackupScheduleController::class, 'instant'])->name('backup.instant');
+
+});

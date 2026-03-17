@@ -1,53 +1,57 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
+    <div class="container mb-2 d-flex justify-content-between">
         <a href="{{ route('dashboard') }}" class="btn btn-success">Dashboard</a>
     </div>
+
     <div class="container mb-2 d-flex justify-content-between">
         <a href="{{ route('notes.create') }}" class="btn btn-primary">
             Add New Notes
         </a>
         <div class="dropdown">
-    <button class="btn btn-primary dropdown-toggle" type="button"
-        data-bs-toggle="dropdown" {{ $backupCooldown ? 'disabled' : '' }}>
-        {{ $backupCooldown ? "Backup on cooldown ({$remainingSeconds}s)..." : 'Take Database Backup' }}
-    </button>
-
-    <ul class="dropdown-menu">
-
-        <li>
-            <form method="POST" action="{{ route('notes.backup') }}">
-                @csrf
-                <input type="hidden" name="interval" value="0">
-                <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                    {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Instant' }}
+            @if (auth()->user()->is_admin)
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" {{ $backupCooldown ? 'disabled' : '' }}>
+                    {{ $backupCooldown ? "Backup on cooldown ({$remainingSeconds}s)..." : 'Take Database Backup' }}
                 </button>
-            </form>
-        </li>
+            @else
+                <a href="{{ route('backup.schedule.index') }}" class="btn btn-success">Set Backups</a>
+            @endif
 
-        <li>
-            <form method="POST" action="{{ route('notes.backup') }}">
-                @csrf
-                <input type="hidden" name="interval" value="1">
-                <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                    {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every minute' }}
-                </button>
-            </form>
-        </li>
+            <ul class="dropdown-menu">
 
-        <li>
-            <form method="POST" action="{{ route('notes.backup') }}">
-                @csrf
-                <input type="hidden" name="interval" value="5">
-                <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                    {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every 5 minutes' }}
-                </button>
-            </form>
-        </li>
+                <li>
+                    <form method="POST" action="{{ route('notes.backup') }}">
+                        @csrf
+                        <input type="hidden" name="interval" value="0">
+                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                            {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Instant' }}
+                        </button>
+                    </form>
+                </li>
 
-    </ul>
-</div>
+                <li>
+                    <form method="POST" action="{{ route('notes.backup') }}">
+                        @csrf
+                        <input type="hidden" name="interval" value="1">
+                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                            {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every minute' }}
+                        </button>
+                    </form>
+                </li>
+
+                <li>
+                    <form method="POST" action="{{ route('notes.backup') }}">
+                        @csrf
+                        <input type="hidden" name="interval" value="5">
+                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                            {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every 5 minutes' }}
+                        </button>
+                    </form>
+                </li>
+
+            </ul>
+        </div>
     </div>
     <div class="container">
         <div class="row justify-content-center">
@@ -99,8 +103,8 @@
                 });
                 const userId = row.find('.btn-update').data('id');
                 row.find('td:last').html(`<button class="btn btn-primary btn-sm edit-user" data-id="${userId}">Edit</button>
-                                                    <button class="btn btn-danger btn-sm delete-user" data-id="${userId}">Delete</button>
-                                                    `);
+                                                        <button class="btn btn-danger btn-sm delete-user" data-id="${userId}">Delete</button>
+                                                        `);
             }
 
             $('table').on('click', '.edit-user', function () {
@@ -111,9 +115,9 @@
 
                 const userId = $(this).data('id');
                 row.find('td:last').html(`
-                                                    <button class="btn btn-success btn-sm btn-update" data-id="${userId}">Update</button>
-                                                    <button class="btn btn-danger btn-sm delete-user" data-id="${userId}">Delete</button>
-                                                `);
+                                                        <button class="btn btn-success btn-sm btn-update" data-id="${userId}">Update</button>
+                                                        <button class="btn btn-danger btn-sm delete-user" data-id="${userId}">Delete</button>
+                                                    `);
 
                 $('table').on('click', '.btn-update', function () {
                     const userId = $(this).data('id');

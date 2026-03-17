@@ -7,6 +7,7 @@ use App\Events\FormSubmitted;
 use App\Jobs\SendEmailJob;
 use App\Models\Note;
 use App\Notifications\NewNote;
+use App\Services\BackupService;
 use ArrayAccess;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -150,44 +151,49 @@ class NoteController extends Controller
             }
         }
 
-        try {
-            $host = '127.0.0.1';
-            $port = '3306';
-            $database = env('DB_DATABASE');
-            $username = env('DB_USERNAME');
-            $mysqldump = 'D:\\PROGRAMMING\\Databse\\Xampp\\mysql\\bin\\mysqldump.exe';
-            $backupDir = storage_path('app\\backups');
 
-            if (!file_exists($backupDir)) {
-                mkdir($backupDir, 0755, true);
-            }
+        BackupService::runBackup($interval);
 
-            $backupPath = $backupDir . '\\' . $database . '_' . now()->format('Y-m-d_H-i-s') . '.sql';
-            $command = "\"{$mysqldump}\" -h {$host} -P {$port} -u {$username} {$database} > \"{$backupPath}\" 2>&1";
+        return back()->with('success', 'Backup completed');
 
-            shell_exec($command);
+        // try {
+        //     $host = '127.0.0.1';
+        //     $port = '3306';
+        //     $database = env('DB_DATABASE');
+        //     $username = env('DB_USERNAME');
+        //     $mysqldump = 'D:\\PROGRAMMING\\Databse\\Xampp\\mysql\\bin\\mysqldump.exe';
+        //     $backupDir = storage_path('app\\backups');
 
-            if (file_exists($backupPath) && filesize($backupPath) > 0) {
-                DB::table('backup_logs')->insert([
-                    'filename' => basename($backupPath),
-                    'status' => 'success',
-                    'interval' => $interval,
-                    'created_at' => now(),
-                ]);
-                return back()->with('success', 'Backup saved: ' . basename($backupPath));
-            }
+        //     if (!file_exists($backupDir)) {
+        //         mkdir($backupDir, 0755, true);
+        //     }
 
-            throw new \Exception('Backup file was not created');
+        //     $backupPath = $backupDir . '\\' . $database . '_' . now()->format('Y-m-d_H-i-s') . '.sql';
+        //     $command = "\"{$mysqldump}\" -h {$host} -P {$port} -u {$username} {$database} > \"{$backupPath}\" 2>&1";
 
-        } catch (\Exception $e) {
-            DB::table('backup_logs')->insert([
-                'filename' => 'failed_' . now()->format('Y-m-d_H-i-s'),
-                'status' => 'failed',
-                'interval' => $interval,
-                'created_at' => now(),
-            ]);
-            return back()->with('error', 'Backup failed: ' . $e->getMessage());
-        }
+        //     shell_exec($command);
+
+        //     if (file_exists($backupPath) && filesize($backupPath) > 0) {
+        //         DB::table('backup_logs')->insert([
+        //             'filename' => basename($backupPath),
+        //             'status' => 'success',
+        //             'interval' => $interval,
+        //             'created_at' => now(),
+        //         ]);
+        //         return back()->with('success', 'Backup saved: ' . basename($backupPath));
+        //     }
+
+        //     throw new \Exception('Backup file was not created');
+
+        // } catch (\Exception $e) {
+        //     DB::table('backup_logs')->insert([
+        //         'filename' => 'failed_' . now()->format('Y-m-d_H-i-s'),
+        //         'status' => 'failed',
+        //         'interval' => $interval,
+        //         'created_at' => now(),
+        //     ]);
+        //     return back()->with('error', 'Backup failed: ' . $e->getMessage());
+        // }
 
         // try {
         //     Artisan::call('backup:run');
