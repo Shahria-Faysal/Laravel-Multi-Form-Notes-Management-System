@@ -30,7 +30,7 @@ Schedule::call(function () {
 
             $timeMatches = $now->format('H:i') === Carbon::parse($schedule->time)->format('H:i');
             $dayMatches  = in_array($todayShort, $schedule->days ?? []);
-            Log::info("Schedule {$schedule->id} — time: {$schedule->time}, timeMatches: " . ($timeMatches ? 'yes' : 'no') . ", dayMatches: " . ($dayMatches ? 'yes' : 'no'));
+            // Log::info("Schedule {$schedule->id} — time: {$schedule->time}, timeMatches: " . ($timeMatches ? 'yes' : 'no') . ", dayMatches: " . ($dayMatches ? 'yes' : 'no'));
             if ($timeMatches && $dayMatches) {
                 RunScheduledBackup::dispatch($schedule);
             }

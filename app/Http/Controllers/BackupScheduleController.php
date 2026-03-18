@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class BackupScheduleController extends Controller
 {
-    // index — only show current user's schedules
     public function index()
     {
         // dd(BackupSchedule::where('user_id', auth()->id())->latest()->get());
@@ -16,7 +15,6 @@ class BackupScheduleController extends Controller
         return view('BackupModes', compact('schedules'));
     }
 
-    // store — attach user_id when creating
     public function store(Request $request)
     {
         $request->validate([
@@ -36,14 +34,12 @@ class BackupScheduleController extends Controller
         return back()->with('success', 'Backup slot added.');
     }
 
-    // destroy — make sure user owns it before deleting
     public function destroy($id)
     {
         BackupSchedule::where('user_id', auth()->id())->findOrFail($id)->delete();
         return back()->with('success', 'Backup slot removed.');
     }
 
-    // toggle — make sure user owns it before toggling
     public function toggle(Request $request, $id)
     {
         $schedule = BackupSchedule::where('user_id', auth()->id())->findOrFail($id);
@@ -53,7 +49,6 @@ class BackupScheduleController extends Controller
         return response()->json(['success' => true]);
     }
 
-    // instant backup triggered by the user
     public function instant(Request $request)
     {
         $success = BackupService::runUserBackup(

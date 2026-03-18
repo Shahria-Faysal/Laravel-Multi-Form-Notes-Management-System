@@ -61,7 +61,7 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/backup/schedule/{id}', [BackupScheduleController::class, 'destroy'])->name('backup.schedule.destroy');
 
-    Route::patch('/backup/schedule/{id}/toggle', [BackupScheduleController::class, 'toggle']);
+    Route::patch('/backup/schedule/{id}/toggle', [BackupScheduleController::class, 'toggle'])->name('backup.schedule.toggle');
 
     Route::post('/backup/instant', [BackupScheduleController::class, 'instant'])->name('backup.instant');
 
