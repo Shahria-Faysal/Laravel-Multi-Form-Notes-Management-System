@@ -17,7 +17,7 @@ Route::get('/notes/table-data', [NoteController::class, 'tableData'])->name('not
 
 Route::post('notes/store', [NoteController::class, 'store'])->name('notes.store');
 
-Route::put('notes/update/{note}',[NoteController::class, 'update'])->name('notes.update');
+Route::put('notes/update/{note}', [NoteController::class, 'update'])->name('notes.update');
 
 Route::delete('notes/trash/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
 
@@ -33,7 +33,7 @@ Route::resource('notes', NoteController::class);
 
 
 
-Route::get('/',[UserController::class, 'dashboard'])->name('dashboard');
+Route::get('/', [UserController::class, 'dashboard'])->name('dashboard');
 
 Route::view('/login', 'login')->name('login'); // show login page
 Route::post('/login', [UserController::class, 'login'])->name('loginMatch');
@@ -63,6 +63,10 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('/backup/schedule/{id}/toggle', [BackupScheduleController::class, 'toggle'])->name('backup.schedule.toggle');
 
+    Route::patch('/backup/schedule/continuous/{id}/toggle', [BackupScheduleController::class, 'contToggle'])->name('backup.schedule.contToggle');
+
     Route::post('/backup/instant', [BackupScheduleController::class, 'instant'])->name('backup.instant');
+
+    // Route::post('/backup/schedule/{id}/{interval}/auto-start', [BackupScheduleController::class, 'startAutoBackup'])->name('backup.auto-start');
 
 });

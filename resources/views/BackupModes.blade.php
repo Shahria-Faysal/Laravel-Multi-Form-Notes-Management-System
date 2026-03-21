@@ -133,6 +133,22 @@
                         <input type="time" name="time" id="timeInput" class="form-control form-control-lg" required
                                style="font-family: monospace; font-size: 1.25rem;">
                     </div>
+
+                   <div class="mb-3 d-flex align-items-center justify-content-between">
+                        <label class="form-label fw-semibold text-muted mb-0">Take Continuous Backup (Optional)</label>
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                style="width: 2.5em; height: 1.4em; cursor: pointer;"
+                                onchange="toggleIntervalInput(this)">
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="intervalInput" style="display: none;">
+                        <label class="form-label small fw-semibold text-uppercase text-muted" style="letter-spacing: .5px;">
+                            Interval (minutes)
+                        </label>
+                        <input type="number" name="is_continuous" class="form-control" min="1" placeholder="e.g. 5">
+                    </div>
  
                     <div class="mb-3">
                         <label class="form-label small fw-semibold text-uppercase text-muted" style="letter-spacing: .5px;">Label <span class="text-muted fw-normal">(optional)</span></label>
@@ -182,6 +198,12 @@
  
 @push('scripts')
 <script>
+
+function toggleIntervalInput(checkbox) {
+    const intervalDiv = document.getElementById('intervalInput');
+    intervalDiv.style.display = checkbox.checked ? 'block' : 'none';
+}
+
 // ── Day picker ───────────────────────────────────────────────────────────────
 function toggleDay(btn) {
     btn.classList.toggle('btn-outline-secondary');
@@ -225,6 +247,32 @@ function toggleSchedule(id, checkbox) {
         showToast('Network error', true);
     });
 }
+ 
+    fetch(`/backup/schedule/continuous/${id}/toggle`, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            card.classList.toggle('opacity-50', !status);
+            card.classList.toggle('border-primary', status);
+            card.classList.toggle('border-opacity-25', status);
+            showToast(status ? 'Backup slot status' : 'Backup slot disabled');
+        } else {
+            checkbox.checked = !status;
+            showToast('Could not update slot', true);
+        }
+    })
+    .catch(() => {
+        checkbox.checked = !status;
+        showToast('Network error', true);
+    });
  
 // ── Toast ────────────────────────────────────────────────────────────────────
 function showToast(msg, isError = false) {

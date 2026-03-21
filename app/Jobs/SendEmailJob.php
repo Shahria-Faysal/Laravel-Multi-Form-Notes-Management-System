@@ -53,8 +53,8 @@ class SendEmailJob implements ShouldQueue
             ]);
 
             // ✅ Notify per note, inside the loop
-             Notification::route('mail', $this->user->email)
-                        ->notify(new NewNote($note));
+            //  Notification::route('mail', $this->user->email)
+            //             ->notify(new NewNote($note));
 
             $this->user->notify(new NewNote($note));
         }

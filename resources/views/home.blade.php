@@ -14,43 +14,42 @@
                 <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" {{ $backupCooldown ? 'disabled' : '' }}>
                     {{ $backupCooldown ? "Backup on cooldown ({$remainingSeconds}s)..." : 'Take Database Backup' }}
                 </button>
+                <ul class="dropdown-menu">
+
+                    <li>
+                        <form method="POST" action="{{ route('notes.backup') }}">
+                            @csrf
+                            <input type="hidden" name="interval" value="0">
+                            <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                                {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Instant' }}
+                            </button>
+                        </form>
+                    </li>
+
+                    <li>
+                        <form method="POST" action="{{ route('notes.backup') }}">
+                            @csrf
+                            <input type="hidden" name="interval" value="1">
+                            <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                                {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every minute' }}
+                            </button>
+                        </form>
+                    </li>
+
+                    <li>
+                        <form method="POST" action="{{ route('notes.backup') }}">
+                            @csrf
+                            <input type="hidden" name="interval" value="5">
+                            <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                                {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every 5 minutes' }}
+                            </button>
+                        </form>
+                    </li>
+
+                </ul>
             @else
                 <a href="{{ route('backup.schedule.index') }}" class="btn btn-success">Set Backups</a>
             @endif
-
-            <ul class="dropdown-menu">
-
-                <li>
-                    <form method="POST" action="{{ route('notes.backup') }}">
-                        @csrf
-                        <input type="hidden" name="interval" value="0">
-                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                            {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Instant' }}
-                        </button>
-                    </form>
-                </li>
-
-                <li>
-                    <form method="POST" action="{{ route('notes.backup') }}">
-                        @csrf
-                        <input type="hidden" name="interval" value="1">
-                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                            {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every minute' }}
-                        </button>
-                    </form>
-                </li>
-
-                <li>
-                    <form method="POST" action="{{ route('notes.backup') }}">
-                        @csrf
-                        <input type="hidden" name="interval" value="5">
-                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                            {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every 5 minutes' }}
-                        </button>
-                    </form>
-                </li>
-
-            </ul>
         </div>
     </div>
     <div class="container">
@@ -103,8 +102,8 @@
                 });
                 const userId = row.find('.btn-update').data('id');
                 row.find('td:last').html(`<button class="btn btn-primary btn-sm edit-user" data-id="${userId}">Edit</button>
-                                                        <button class="btn btn-danger btn-sm delete-user" data-id="${userId}">Delete</button>
-                                                        `);
+                                                            <button class="btn btn-danger btn-sm delete-user" data-id="${userId}">Delete</button>
+                                                            `);
             }
 
             $('table').on('click', '.edit-user', function () {
@@ -115,9 +114,9 @@
 
                 const userId = $(this).data('id');
                 row.find('td:last').html(`
-                                                        <button class="btn btn-success btn-sm btn-update" data-id="${userId}">Update</button>
-                                                        <button class="btn btn-danger btn-sm delete-user" data-id="${userId}">Delete</button>
-                                                    `);
+                                                            <button class="btn btn-success btn-sm btn-update" data-id="${userId}">Update</button>
+                                                            <button class="btn btn-danger btn-sm delete-user" data-id="${userId}">Delete</button>
+                                                        `);
 
                 $('table').on('click', '.btn-update', function () {
                     const userId = $(this).data('id');

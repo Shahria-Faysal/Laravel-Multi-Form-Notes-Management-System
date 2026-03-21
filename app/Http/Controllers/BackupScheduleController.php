@@ -29,6 +29,7 @@ class BackupScheduleController extends Controller
             'days' => json_decode($request->days),
             'status' => true,
             'is_instant' => false,
+            'is_continuous' => $request->is_continuous ?? 0,
         ]);
 
         return back()->with('success', 'Backup slot added.');
@@ -44,6 +45,15 @@ class BackupScheduleController extends Controller
     {
         $schedule = BackupSchedule::where('user_id', auth()->id())->findOrFail($id);
         $schedule->status = $request->status;
+        $schedule->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function contToggle(Request $request, $id)
+    {
+        $schedule = BackupSchedule::where('user_id', auth()->id())->findOrFail($id);
+        $schedule->is_continous = $request->is_continous;
         $schedule->save();
 
         return response()->json(['success' => true]);
