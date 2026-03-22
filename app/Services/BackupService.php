@@ -4,11 +4,10 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class BackupService
 {
-    public static function runBackup($interval = 0)
+    public static function runBackup(int $interval = 0, bool $is_instant = false)
     {
         try {
 
@@ -35,6 +34,7 @@ class BackupService
                     'filename' => basename($backupPath),
                     'status' => 'success',
                     'interval' => $interval,
+                    'is_instant' => $is_instant,
                     'created_at' => now(),
                 ]);
 
@@ -49,6 +49,7 @@ class BackupService
                 'filename' => 'failed_' . now()->format('Y-m-d_H-i-s'),
                 'status' => 'failed',
                 'interval' => $interval,
+                'is_instant' => $is_instant,
                 'created_at' => now(),
             ]);
 
@@ -57,7 +58,7 @@ class BackupService
     }
 
 
-    public static function runUserBackup(int $userId, ?string $label = '', bool $isInstant = false)
+    public static function runUserBackup(int $userId, ?string $label = '', bool $isInstant = false, int $interval = 0)
     {
         try {
             $host = '127.0.0.1';
@@ -87,7 +88,7 @@ class BackupService
                 DB::table('backup_logs')->insert([
                     'filename' => $filename,
                     'status' => 'success',
-                    'interval' => 0,
+                    'interval' => $interval,
                     'user_id' => $userId,
                     'label' => $label,
                     'is_instant' => $isInstant,
@@ -103,7 +104,7 @@ class BackupService
             DB::table('backup_logs')->insert([
                 'filename' => 'failed_' . now()->format('Y-m-d_H-i-s'),
                 'status' => 'failed',
-                'interval' => 0,
+                'interval' => $interval,
                 'user_id' => $userId,
                 'label' => $label,
                 'is_instant' => $isInstant,

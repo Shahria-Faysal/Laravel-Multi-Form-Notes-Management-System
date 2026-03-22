@@ -61,11 +61,16 @@ class BackupScheduleController extends Controller
 
     public function instant(Request $request)
     {
-        $success = BackupService::runUserBackup(
+        if(auth()->user()->is_admin) {
+            $success = BackupService::runBackup(is_instant: true);
+        } else {
+            $success = BackupService::runUserBackup(
             userId: auth()->id(),
             label: 'Instant backup',
             isInstant: true,
         );
+        }
+        
 
         return back()->with($success ? 'backup_taken' : 'error', $success ? true : 'Backup failed.');
     }

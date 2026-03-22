@@ -131,93 +131,29 @@ class NoteController extends Controller
         }
     }
 
-    public function backup(Request $request)
-    {
-        $interval = (int) $request->input('interval');
+    // public function backup(Request $request)
+    // {
+    //     $interval = (int) $request->input('interval');
 
-        // ✅ Check cooldown from last successful backup
-        $lastBackup = DB::table('backup_logs')
-            ->where('status', 'success')
-            ->latest('created_at')
-            ->first();
+    //     // ✅ Check cooldown from last successful backup
+    //     $lastBackup = DB::table('backup_logs')
+    //         ->where('status', 'success')
+    //         ->latest('created_at')
+    //         ->first();
 
-        if ($lastBackup && $lastBackup->interval > 0) {
-            $nextAllowed = Carbon::parse($lastBackup->created_at)
-                ->addMinutes($lastBackup->interval);
+    //     if ($lastBackup && $lastBackup->interval > 0) {
+    //         $nextAllowed = Carbon::parse($lastBackup->created_at)
+    //             ->addMinutes($lastBackup->interval);
 
-            if (now()->lt($nextAllowed)) {
-                $remaining = now()->diffInSeconds($nextAllowed);
-                return back()->with('error', "Please wait {$remaining} seconds before taking another backup.");
-            }
-        }
+    //         if (now()->lt($nextAllowed)) {
+    //             $remaining = now()->diffInSeconds($nextAllowed);
+    //             return back()->with('error', "Please wait {$remaining} seconds before taking another backup.");
+    //         }
+    //     }
 
 
-        BackupService::runBackup($interval);
+    //     BackupService::runBackup($interval);
 
-        return back()->with('success', 'Backup completed');
-
-        // try {
-        //     $host = '127.0.0.1';
-        //     $port = '3306';
-        //     $database = env('DB_DATABASE');
-        //     $username = env('DB_USERNAME');
-        //     $mysqldump = 'D:\\PROGRAMMING\\Databse\\Xampp\\mysql\\bin\\mysqldump.exe';
-        //     $backupDir = storage_path('app\\backups');
-
-        //     if (!file_exists($backupDir)) {
-        //         mkdir($backupDir, 0755, true);
-        //     }
-
-        //     $backupPath = $backupDir . '\\' . $database . '_' . now()->format('Y-m-d_H-i-s') . '.sql';
-        //     $command = "\"{$mysqldump}\" -h {$host} -P {$port} -u {$username} {$database} > \"{$backupPath}\" 2>&1";
-
-        //     shell_exec($command);
-
-        //     if (file_exists($backupPath) && filesize($backupPath) > 0) {
-        //         DB::table('backup_logs')->insert([
-        //             'filename' => basename($backupPath),
-        //             'status' => 'success',
-        //             'interval' => $interval,
-        //             'created_at' => now(),
-        //         ]);
-        //         return back()->with('success', 'Backup saved: ' . basename($backupPath));
-        //     }
-
-        //     throw new \Exception('Backup file was not created');
-
-        // } catch (\Exception $e) {
-        //     DB::table('backup_logs')->insert([
-        //         'filename' => 'failed_' . now()->format('Y-m-d_H-i-s'),
-        //         'status' => 'failed',
-        //         'interval' => $interval,
-        //         'created_at' => now(),
-        //     ]);
-        //     return back()->with('error', 'Backup failed: ' . $e->getMessage());
-        // }
-
-        // try {
-        //     Artisan::call('backup:run');
-        //     dd(Artisan::output());
-
-        //     DB::table('backup_logs')->insert([
-        //         'filename' => 'spatie_backup_' . now()->format('Y-m-d_H-i-s'),
-        //         'status' => 'success',
-        //         'interval' => $interval,
-        //         'created_at' => now(),
-        //     ]);
-
-        //     return back()->with('success', 'Backup completed successfully!');
-
-        // } catch (\Exception $e) {
-
-        //     DB::table('backup_logs')->insert([
-        //         'filename' => 'spatie_backup_' . now()->format('Y-m-d_H-i-s'),
-        //         'status' => 'failed',
-        //         'interval' => $interval,
-        //         'created_at' => now(),
-        //     ]);
-
-        //     return back()->with('error', 'Backup failed: ' . $e->getMessage());
-        // }
-    }
+    //     return back()->with('success', 'Backup completed');
+    // }
 }

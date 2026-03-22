@@ -29,6 +29,7 @@ Schedule::call(function () {
         ->get()
         ->each(function ($schedule) use ($now, $todayShort) {
 
+
             // ── Continuous backup ─────────────────────────────────────────
             // is_continuous stores the interval in minutes e.g. 5
             // check if enough minutes have passed since last backup
@@ -56,7 +57,7 @@ Schedule::call(function () {
                 }
 
                 if ($shouldRun) {
-                    RunScheduledBackup::dispatch($schedule);
+                    RunScheduledBackup::dispatch($schedule)->onQueue('continuous');
                 }
 
                 // continuous backup handled, skip the time/day check below
@@ -68,10 +69,8 @@ Schedule::call(function () {
             $dayMatches  = in_array($todayShort, $schedule->days ?? []);
 
             if ($timeMatches && $dayMatches) {
-                RunScheduledBackup::dispatch($schedule);
+                RunScheduledBackup::dispatch($schedule)->onQueue('scheduled');
             }
         });
 
 })->everyMinute();
-
-

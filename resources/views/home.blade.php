@@ -10,12 +10,11 @@
             Add New Notes
         </a>
         <div class="dropdown">
-            @if (auth()->user()->is_admin)
+            {{-- @if (auth()->user()->is_admin)
                 <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" {{ $backupCooldown ? 'disabled' : '' }}>
                     {{ $backupCooldown ? "Backup on cooldown ({$remainingSeconds}s)..." : 'Take Database Backup' }}
                 </button>
                 <ul class="dropdown-menu">
-
                     <li>
                         <form method="POST" action="{{ route('notes.backup') }}">
                             @csrf
@@ -47,9 +46,9 @@
                     </li>
 
                 </ul>
-            @else
+            @else --}}
                 <a href="{{ route('backup.schedule.index') }}" class="btn btn-success">Set Backups</a>
-            @endif
+            {{-- @endif --}}
         </div>
     </div>
     <div class="container">

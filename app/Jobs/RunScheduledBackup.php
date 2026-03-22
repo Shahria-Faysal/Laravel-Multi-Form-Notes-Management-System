@@ -2,13 +2,14 @@
 
 namespace App\Jobs;
 
-use App\Services\BackupService;
 use App\Models\BackupSchedule;
+use App\Services\BackupService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 
 class RunScheduledBackup implements ShouldQueue
 {
@@ -28,10 +29,22 @@ class RunScheduledBackup implements ShouldQueue
      */
     public function handle(): void
     {
-        BackupService::runUserBackup(
-            userId:    $this->schedule->user_id,
-            label:     $this->schedule->label,
-            isInstant: false,
-        );
+        $user = DB::table('users')
+            ->where('id', $this->schedule->user_id)
+            ->first();
+
+        if ($user && $user->is_admin) {
+
+            BackupService::runBackup(interval: $this->schedule->is_continuous);
+
+        } else {
+
+            BackupService::runUserBackup(
+                userId: $this->schedule->user_id,
+                label: $this->schedule->label ?? '',
+                isInstant: false,
+                interval: $this->schedule->is_continuous
+            );
+        }
     }
 }
