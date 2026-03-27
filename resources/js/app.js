@@ -8,8 +8,11 @@ if (userId) {
 
     window.Echo.private(`App.Models.User.${userId}`)
         .notification((notification) => {
+            console.log(notification);
             const toast = document.createElement("div");
-            toast.innerText = notification.message;
+            // toast.innerText = notification.message;
+            // toast.innerText = notification.note_id;
+            toast.innerText = `${notification.message} (ID: ${notification.note_id})`;
             toast.style.position = "fixed";
             toast.style.top = (20 + toastCount * 60) + "px";  // offset each toast
             toast.style.right = "20px";

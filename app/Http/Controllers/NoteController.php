@@ -67,6 +67,10 @@ class NoteController extends Controller
         return $dt->ajax();
     }
 
+   public function showNote(Note $note)
+{
+    return view('showNotification', compact('note'));
+}
     /**
      * Show the form for creating a new resource.
      */

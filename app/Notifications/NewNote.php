@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Models\Note;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\BroadcastMessage;
@@ -15,14 +14,12 @@ class NewNote extends Notification
     /**
      * Create a new notification instance.
      */
-
     public $note;
 
     public function __construct($note)
     {
         $this->note = $note;
     }
-
     /**
      * Get the notification's delivery channels.
      *
@@ -30,7 +27,7 @@ class NewNote extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail','broadcast'];
+        return ['database', 'mail', 'broadcast'];
     }
 
     /**
@@ -58,4 +55,26 @@ class NewNote extends Notification
             'note_id' => $this->note->id,
         ]);
     }
+
+    public function toDatabase($notifiable)
+    {
+        // dd('toDatabase called');
+        return [
+            'note_id' => $this->note->id,
+            'message' => 'Your Note has been added',
+            'title' => $this->note->title,
+        ];
+    }
+
+
+
+    // public function toArray($notifiable): array
+    // {
+    //     return [
+    //         'type' => 'note',
+    //         'title' => 'New note added',
+    //         'message' => 'Note "' . $this->note->title . '" was created.',
+    //         'note_id' => $this->note->id,
+    //     ];
+    // }
 }

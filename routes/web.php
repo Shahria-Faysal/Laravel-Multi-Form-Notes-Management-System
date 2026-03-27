@@ -2,34 +2,41 @@
 
 use App\Http\Controllers\BackupScheduleController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 // use Illuminate\Support\Facades\Auth;
 
 // Auth::routes();
 
+Route::middleware('auth')->group(function () {
 
-Route::get('/notes', [NoteController::class, 'index'])->name('notes.index');
+        Route::get('/notes', [NoteController::class, 'index'])->name('notes.index');
 
-Route::get('/notes/create', [NoteController::class, 'create'])->name('notes.create');
+        Route::get('/notes/create', [NoteController::class, 'create'])->name('notes.create');
 
-Route::get('/notes/table-data', [NoteController::class, 'tableData'])->name('notes.table.data');
+        Route::get('/notes/table-data', [NoteController::class, 'tableData'])->name('notes.table.data');
 
-Route::post('notes/store', [NoteController::class, 'store'])->name('notes.store');
+        Route::post('notes/store', [NoteController::class, 'store'])->name('notes.store');
 
-Route::put('notes/update/{note}', [NoteController::class, 'update'])->name('notes.update');
+        Route::put('notes/update/{note}', [NoteController::class, 'update'])->name('notes.update');
 
-Route::delete('notes/trash/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
+        Route::delete('notes/trash/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
 
-Route::delete('notes/delete/{note}', [NoteController::class, 'forceDelete'])->name('notes.force-delete')->withTrashed();
+        Route::delete('notes/delete/{note}', [NoteController::class, 'forceDelete'])->name('notes.force-delete')->withTrashed();
 
-Route::post('notes/restore/{note}', [NoteController::class, 'restore'])->name('notes.restore')->withTrashed();
+        Route::post('notes/restore/{note}', [NoteController::class, 'restore'])->name('notes.restore')->withTrashed();
 
-// Route::post('notes/take-backup', [NoteController::class, 'backup'])->name('notes.backup');
+        // Route::get('notes/show/{id}/{note}', [NoteController::class, 'showNote'])->name('note.show');
+        Route::get('notes/show/{note}', [NoteController::class, 'showNote'])->name('note.show');
 
-// Route::view('/notes/backupmodes','backupModes')->name('BackupModes');
+        // Route::post('notes/take-backup', [NoteController::class, 'backup'])->name('notes.backup');
 
-Route::resource('notes', NoteController::class);
+        // Route::view('/notes/backupmodes','backupModes')->name('BackupModes');
+
+        Route::resource('notes', NoteController::class);
+
+});
 
 
 
@@ -69,4 +76,20 @@ Route::middleware('auth')->group(function () {
 
     // Route::post('/backup/schedule/{id}/{interval}/auto-start', [BackupScheduleController::class, 'startAutoBackup'])->name('backup.auto-start');
 
+});
+
+
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+
+    Route::get('/notification/{id}/{notification_id}/show', [NotificationController::class, 'showNotification'])->name('notification.show');
+
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
+
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    
 });

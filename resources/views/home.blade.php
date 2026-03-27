@@ -9,47 +9,96 @@
         <a href="{{ route('notes.create') }}" class="btn btn-primary">
             Add New Notes
         </a>
-        <div class="dropdown">
+        {{-- <div class="dropdown"> --}}
             {{-- @if (auth()->user()->is_admin)
-                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" {{ $backupCooldown ? 'disabled' : '' }}>
-                    {{ $backupCooldown ? "Backup on cooldown ({$remainingSeconds}s)..." : 'Take Database Backup' }}
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <form method="POST" action="{{ route('notes.backup') }}">
-                            @csrf
-                            <input type="hidden" name="interval" value="0">
-                            <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                                {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Instant' }}
-                            </button>
-                        </form>
-                    </li>
+            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" {{ $backupCooldown
+                ? 'disabled' : '' }}>
+                {{ $backupCooldown ? "Backup on cooldown ({$remainingSeconds}s)..." : 'Take Database Backup' }}
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <form method="POST" action="{{ route('notes.backup') }}">
+                        @csrf
+                        <input type="hidden" name="interval" value="0">
+                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                            {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Instant' }}
+                        </button>
+                    </form>
+                </li>
 
-                    <li>
-                        <form method="POST" action="{{ route('notes.backup') }}">
-                            @csrf
-                            <input type="hidden" name="interval" value="1">
-                            <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                                {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every minute' }}
-                            </button>
-                        </form>
-                    </li>
+                <li>
+                    <form method="POST" action="{{ route('notes.backup') }}">
+                        @csrf
+                        <input type="hidden" name="interval" value="1">
+                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                            {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every minute' }}
+                        </button>
+                    </form>
+                </li>
 
-                    <li>
-                        <form method="POST" action="{{ route('notes.backup') }}">
-                            @csrf
-                            <input type="hidden" name="interval" value="5">
-                            <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
-                                {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every 5 minutes' }}
-                            </button>
-                        </form>
-                    </li>
+                <li>
+                    <form method="POST" action="{{ route('notes.backup') }}">
+                        @csrf
+                        <input type="hidden" name="interval" value="5">
+                        <button class="dropdown-item" {{ $backupCooldown ? 'disabled' : '' }}>
+                            {{ $backupCooldown ? "On cooldown ({$remainingSeconds}s)" : 'Every 5 minutes' }}
+                        </button>
+                    </form>
+                </li>
 
-                </ul>
+            </ul>
             @else --}}
+            <div class="d-flex gap-2">
+                <li class="nav-item dropdown btn btn-primary">
+                    <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
+
+                        <!-- Bell Icon -->
+                        Notifications <i class="bi bi-bell" style="font-size:20px;"></i>
+
+                        <!-- Notification Count -->
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-count">
+                                {{ auth()->user()->unreadNotifications->count() }}
+                            </span>
+                        @endif
+
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+
+                        <li class="dropdown-header">
+                            Notifications
+                        </li>
+
+                        @forelse(auth()->user()->unreadNotifications->take(4) as $notification)
+
+                            <li id="notification-list">
+                                <a class="dropdown-item" href="#">
+                                    {{ $notification->data['message'] ?? 'New Notification' }}
+                                </a>
+                            </li>
+
+                        @empty
+
+                        @endforelse
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item text-center" href="{{ route('notifications.index') }}">
+                                See All Notifications
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
                 <a href="{{ route('backup.schedule.index') }}" class="btn btn-success">Set Backups</a>
+            </div>
             {{-- @endif --}}
-        </div>
+            {{--
+        </div> --}}
     </div>
     <div class="container">
         <div class="row justify-content-center">
@@ -99,10 +148,9 @@
                         $(td).text(val);
                     }
                 });
-                const userId = row.find('.btn-update').data('id');
-                row.find('td:last').html(`<button class="btn btn-primary btn-sm edit-user" data-id="${userId}">Edit</button>
-                                                            <button class="btn btn-danger btn-sm delete-user" data-id="${userId}">Delete</button>
-                                                            `);
+                const note_id = row.find('.btn-update').data('id');
+                row.find('td:last').html(`<button class="btn btn-primary btn-sm edit-user" data-id="${note_id}">Edit</button>
+                     <button class="btn btn-danger btn-sm delete-user" data-id="${note_id}">Delete</button>`);
             }
 
             $('table').on('click', '.edit-user', function () {
@@ -111,14 +159,13 @@
                 makeEditable(row);
                 currentRow = row;
 
-                const userId = $(this).data('id');
+                const note_id = $(this).data('id');
                 row.find('td:last').html(`
-                                                            <button class="btn btn-success btn-sm btn-update" data-id="${userId}">Update</button>
-                                                            <button class="btn btn-danger btn-sm delete-user" data-id="${userId}">Delete</button>
-                                                        `);
+                  <button class="btn btn-success btn-sm btn-update" data-id="${note_id}">Update</button>
+                  <button class="btn btn-danger btn-sm delete-user" data-id="${note_id}">Delete</button>`);
 
                 $('table').on('click', '.btn-update', function () {
-                    const userId = $(this).data('id');
+                    const note_id = $(this).data('id');
                     const row = $(this).closest('tr');
                     const data = {};
                     row.find('td').each((i, td) => {
@@ -128,7 +175,7 @@
                     });
 
                     $.ajax({
-                        url: "{{ route('notes.update', ':id') }}".replace(':id', userId),
+                        url: "{{ route('notes.update', ':id') }}".replace(':id', note_id),
                         type: 'PUT',
                         data: { ...data, _token: '{{ csrf_token() }}' },
                         success: res => {
@@ -141,12 +188,12 @@
             });
 
             $('table').on('click', '.delete-user', function () {
-                const userId = $(this).data('id');
-                if (!userId) return;
+                const note_id = $(this).data('id');
+                if (!note_id) return;
                 if (!confirm('Are you sure?')) return;
 
                 $.ajax({
-                    url: "{{ route('notes.destroy', ':id') }}".replace(':id', userId),
+                    url: "{{ route('notes.destroy', ':id') }}".replace(':id', note_id),
                     type: 'DELETE',
                     data: { _token: '{{ csrf_token() }}' },
                     success: res => {
@@ -158,12 +205,12 @@
             });
 
             $('#trash-table').on('click', '.force-delete', function () {
-                const userId = $(this).data('id');
-                if (!userId) return;
+                const note_id = $(this).data('id');
+                if (!note_id) return;
                 if (!confirm('Delete permanently?')) return;
 
                 $.ajax({
-                    url: "{{ route('notes.force-delete', ':id') }}".replace(':id', userId),
+                    url: "{{ route('notes.force-delete', ':id') }}".replace(':id', note_id),
                     type: 'DELETE',
                     data: { _token: '{{ csrf_token() }}' },
                     success: res => {
@@ -175,12 +222,12 @@
             });
 
             $('#trash-table').on('click', '.restore-user', function () {
-                const userId = $(this).data('id');
-                if (!userId) return;
+                const note_id = $(this).data('id');
+                if (!note_id) return;
                 if (!confirm('Restore?')) return;
 
                 $.ajax({
-                    url: "{{ route('notes.restore', ':id') }}".replace(':id', userId),
+                    url: "{{ route('notes.restore', ':id') }}".replace(':id', note_id),
                     type: 'POST',
                     data: { _token: '{{ csrf_token() }}' },
                     success: res => {
@@ -191,6 +238,27 @@
                 });
             });
 
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            Echo.private('App.Models.User.{{ auth()->id() }}')
+                .notification((notification) => {
+
+                    // console.log(notification);
+
+                    let countElement = document.getElementById("notification-count");
+                    let list = document.getElementById("notification-list");
+
+                    let count = parseInt(countElement.innerText) || 0;
+                    countElement.innerText = count + 1;
+
+                    let item = document.createElement("a");
+                    item.innerHTML = `<a class="dropdown-item">${notification.message}</a>`;
+
+                    list.prepend(item);
+                });
+                
         });
     </script>
 @endpush
