@@ -3,12 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\NotesDataTable;
-use App\Events\FormSubmitted;
 use App\Jobs\SendEmailJob;
 use App\Models\Note;
-use App\Notifications\NewNote;
-use App\Services\BackupService;
-use ArrayAccess;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -30,30 +26,9 @@ class NoteController extends Controller
         $notesDataTable->with('tableId', 'notes-table');
         $noteTrashDataTable->with('tableId', 'trash-table');
 
-        // ✅ Backup cooldown check
-        $backupCooldown = false;
-        $remainingSeconds = 0;
-
-        $lastBackup = DB::table('backup_logs')
-            ->where('status', 'success')
-            ->latest('created_at')
-            ->first();
-
-        if ($lastBackup && $lastBackup->interval > 0) {
-            $nextAllowed = Carbon::parse($lastBackup->created_at)
-                ->addMinutes($lastBackup->interval);
-
-            if (now()->lt($nextAllowed)) {
-                $backupCooldown = true;
-                $remainingSeconds = now()->diffInSeconds($nextAllowed);
-            }
-        }
-
         return $notesDataTable->render('home', [
             'notesDataTable' => $notesDataTable->html(),
             'TrashTable' => $noteTrashDataTable->html(),
-            'backupCooldown' => $backupCooldown,    // ✅ passed to blade
-            'remainingSeconds' => $remainingSeconds,  // ✅ passed to blade
         ]);
     }
 

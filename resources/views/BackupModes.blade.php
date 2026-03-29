@@ -62,8 +62,10 @@
                 {{-- Meta --}}
                 <div class="flex-grow-1 overflow-hidden">
                     <div class="fw-medium text-truncate small">{{ $schedule->label ?: 'Backup' }}</div>
-                    @if($schedule->is_instant)
+                    @if(!$schedule->is_continuous)
                         <span class="badge text-bg-warning mt-1" style="font-size: 10px;">Instant</span>
+                    @else
+                        <span class="badge text-bg-success mt-1" style="font-size: 10px;">Continuous</span>
                     @endif
                     <div class="d-flex flex-wrap gap-1 mt-1">
                         @foreach(['Mo','Tu','We','Th','Fr','Sa','Su'] as $d)

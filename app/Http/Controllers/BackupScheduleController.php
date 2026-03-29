@@ -28,7 +28,7 @@ class BackupScheduleController extends Controller
             'time' => $request->time,
             'days' => json_decode($request->days),
             'status' => true,
-            'is_instant' => false,
+            // 'is_instant' => false,
             'is_continuous' => $request->is_continuous ?? 0,
         ]);
 
